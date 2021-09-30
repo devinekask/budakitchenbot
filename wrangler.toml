@@ -1,0 +1,7 @@
+name = "budakitchenbot"
+type = "webpack"
+
+account_id = "e0d3b6b189827b8510445edbb8ab07f6"
+workers_dev = true
+route = ""
+zone_id = ""
