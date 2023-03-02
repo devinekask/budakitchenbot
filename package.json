@@ -14,7 +14,9 @@
     "prettier": "^2.6.2"
   },
   "dependencies": {
+    "feed": "^4.2.2",
     "jsdom": "^19.0.0",
+    "worktop": "^0.7.3",
     "wrangler-js": "^0.1.11"
   }
 }
