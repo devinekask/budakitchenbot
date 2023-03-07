@@ -3,3 +3,8 @@ account_id = "e0d3b6b189827b8510445edbb8ab07f6"
 workers_dev = true
 main = "./index.js"
 compatibility_date = "2022-06-09"
+kv_namespaces =[{ id = "8991459858124f79a4dc2263c92b5320", binding = "budakitchen", preview_id = "2d6b1e0264244ab389d3f009fd67dcc6" }]
+
+
+[triggers]
+crons = ["* 6 * * *"]
