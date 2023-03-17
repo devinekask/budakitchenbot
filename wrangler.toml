@@ -5,6 +5,12 @@ main = "./index.js"
 compatibility_date = "2022-06-09"
 kv_namespaces =[{ id = "8991459858124f79a4dc2263c92b5320", binding = "budakitchen", preview_id = "2d6b1e0264244ab389d3f009fd67dcc6" }]
 
+node_compat = true
+
+[vars]
+# The necessary secrets are:
+# - AI_API_TOKEN
+# - TRANSLATE_TOKEN
 
 [triggers]
 crons = ["* 6 * * *"]
