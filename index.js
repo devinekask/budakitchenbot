@@ -9,7 +9,7 @@ const router = Router()
 
 router.get('/', async (_, env) => {
   const data = await getData(env)
-  return json(data.menu)
+  return json(data)
 })
 
 const getOrCreateImage = async (env) => {
@@ -64,14 +64,14 @@ router.get('/rss', async (_, env) => {
     description: 'Hungry yet?',
     id: 'https://budakitchen.be/',
     link: 'https://budakitchen.be/',
-    image:
-      data.image?.uri ??
-      'https://budakitchen.be/wp-content/uploads/2019/02/BUDA.jpg',
   })
 
   data.menu.forEach((item) => {
     feed.addItem({
       title: item,
+      image:
+        data.image?.uri ??
+        'https://budakitchen.be/wp-content/uploads/2019/02/BUDA.jpg',
     })
   })
 
