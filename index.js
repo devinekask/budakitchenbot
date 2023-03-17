@@ -14,11 +14,18 @@ router.post('/slack', async (_, env) => {
   return json({
     response_type: `in_channel`,
     text: `Today's lunch at Buda Kitchen 🍽 `,
-    attachments: [
-      {
-        text: data.join('\n'),
+    blocks: data.map(item => ({
+      type: 'section',
+      text: {
+        type: "mrkdwn",
+        text: item.dish
       },
-    ],
+      accessory: {
+        type: "image",
+        image_url: item.img,
+        alt_text: item.dish
+      }
+    }))
   })
 })
 
@@ -32,9 +39,13 @@ router.get('/rss', async (_, env) => {
     link: 'https://budakitchen.be/',
   })
 
-  data.forEach((item) => {
+  console.log(data)
+
+  data.forEach(item => {
     feed.addItem({
-      title: item,
+      title: item.dish,
+      description: item.dishEn,
+      image: item.img,
     })
   })
 
@@ -55,12 +66,43 @@ const getDateKey = () => {
   )
 }
 
+const processResult = async result => {
+  try {
+    const response = await fetch('https://bud-ai-kitchen.onrender.com/?key=XXq2u4c0EEzJiScBEU62xLe6QYDpesUHKv4ekBT96aTv9', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ dishes: result })
+    });
+
+    const json = await response.json();
+    return json
+  } catch (error) {
+    console.log(error);
+    return result
+  }
+}
+
 const getData = async (env) => {
   const dateKey = getDateKey()
+
   let result = [
-    'Het draait in de soep',
-    'We zitten in de puree',
-    'De mayonaise pakt niet',
+    {
+      dish: 'Het draait in de soep',
+      dishEn: 'It\'s boiling in the soup',
+      img: 'https://i.imgur.com/8ZQ5Z0M.jpg'
+    },
+    {
+      dish: 'We zitten in de puree',
+      dishEn: 'We\'re in the puree',
+      img: 'https://i.imgur.com/8ZQ5Z0M.jpg'
+    },
+    {
+      dish: 'De mayonaise pakt niet',
+      dishEn: 'The mayonnaise doesn\'t work',
+      img: 'https://i.imgur.com/8ZQ5Z0M.jpg'
+    }
   ]
 
   let storedMenu = null
@@ -78,13 +120,16 @@ const getData = async (env) => {
         .transform(resp)
         .text()
 
-      if (handler.result.length > 0) {
+      const processed = await processResult(handler.result)
+
+      if (processed.length > 0) {
+
         await env.budakitchen.put(dateKey, JSON.stringify(handler.result), {
           expirationTtl: 20 * 60 * 60,
         })
       }
 
-      result = handler.result
+      result = processed;
     } else {
       result = storedMenu
     }
