@@ -2,12 +2,46 @@ import { Feed } from 'feed'
 import { Router } from 'itty-router'
 import { json } from 'itty-router-extras'
 
+import { generateImg, getImage } from './services/leap.js'
+import { translate } from './services/translation.js'
+
 const router = Router()
 
 router.get('/', async (_, env) => {
   const data = await getData(env)
-  return json(data)
+  return json(data.menu)
 })
+
+const getOrCreateImage = async (env) => {
+  const today = new Date().getDay()
+
+  if (today != 6 && today != 0) {
+    const dateKey = getDateKey()
+    try {
+      const storedMenu = await env.budakitchen.get(dateKey, { type: 'json' })
+      if (!storedMenu.image || !storedMenu.image.inference) {
+        console.log('inference aanmaken')
+        const promptNL = storedMenu.menu[Math.floor(Math.random() * 2)]
+        const translation = await translate(env.TRANSLATE_TOKEN, promptNL)
+        const inference = await generateImg(env.AI_API_TOKEN, translation)
+        storedMenu.image = { inference }
+        await env.budakitchen.put(dateKey, JSON.stringify(storedMenu))
+      } else if (!storedMenu.image.uri) {
+        console.log('image ophalen')
+        const image = await getImage(
+          env.AI_API_TOKEN,
+          storedMenu.image.inference,
+        )
+        if (image) {
+          storedMenu.image.uri = image
+          await env.budakitchen.put(dateKey, JSON.stringify(storedMenu))
+        }
+      }
+    } catch (e) {
+      console.log('Error', e)
+    }
+  }
+}
 
 router.post('/slack', async (_, env) => {
   const data = await getData(env)
@@ -16,7 +50,7 @@ router.post('/slack', async (_, env) => {
     text: `Today's lunch at Buda Kitchen 🍽 `,
     attachments: [
       {
-        text: data.join('\n'),
+        text: data.menu.join('\n'),
       },
     ],
   })
@@ -30,9 +64,12 @@ router.get('/rss', async (_, env) => {
     description: 'Hungry yet?',
     id: 'https://budakitchen.be/',
     link: 'https://budakitchen.be/',
+    image:
+      data.image?.uri ??
+      'https://budakitchen.be/wp-content/uploads/2019/02/BUDA.jpg',
   })
 
-  data.forEach((item) => {
+  data.menu.forEach((item) => {
     feed.addItem({
       title: item,
     })
@@ -79,18 +116,23 @@ const getData = async (env) => {
         .text()
 
       if (handler.result.length > 0) {
-        await env.budakitchen.put(dateKey, JSON.stringify(handler.result), {
-          expirationTtl: 20 * 60 * 60,
-        })
+        await env.budakitchen.put(
+          dateKey,
+          JSON.stringify({ menu: handler.result }),
+          {
+            expirationTtl: 20 * 60 * 60,
+          },
+        )
       }
 
-      result = handler.result
+      result = { menu: handler.result }
     } else {
       result = storedMenu
     }
   } catch (e) {
     console.log(e)
   }
+  await getOrCreateImage(env)
 
   return result
 }
