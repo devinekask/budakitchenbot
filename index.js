@@ -39,8 +39,6 @@ router.get('/rss', async (_, env) => {
     link: 'https://budakitchen.be/',
   })
 
-  console.log(data)
-
   data.forEach(item => {
     feed.addItem({
       title: item.dish,
