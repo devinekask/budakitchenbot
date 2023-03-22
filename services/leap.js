@@ -15,7 +15,7 @@ const generateImg = async (key, prompt) => {
         negativePrompt: 'asymmetric, watermarks',
         steps: 50,
         width: 800,
-        height: 300,
+        height: 304,
         numberOfImages: 1,
         promptStrength: 7,
         // seed: 4523184,
