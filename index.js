@@ -7,6 +7,10 @@ import { translate } from './services/translation.js'
 
 const router = Router()
 
+const expiration = {
+  expirationTtl: 20 * 60 * 60,
+}
+
 router.get('/', async (_, env) => {
   const data = await getData(env)
   return json(data)
@@ -23,9 +27,15 @@ const getOrCreateImage = async (env) => {
         console.log('inference aanmaken')
         const promptNL = storedMenu.menu[Math.floor(Math.random() * 2)]
         const translation = await translate(env.TRANSLATE_TOKEN, promptNL)
+        console.log('trans', translation)
         const inference = await generateImg(env.AI_API_TOKEN, translation)
+        console.log('inference', inference)
         storedMenu.image = { inference }
-        await env.budakitchen.put(dateKey, JSON.stringify(storedMenu))
+        await env.budakitchen.put(
+          dateKey,
+          JSON.stringify(storedMenu),
+          expiration,
+        )
       } else if (!storedMenu.image.uri) {
         console.log('image ophalen')
         const image = await getImage(
@@ -34,7 +44,11 @@ const getOrCreateImage = async (env) => {
         )
         if (image) {
           storedMenu.image.uri = image
-          await env.budakitchen.put(dateKey, JSON.stringify(storedMenu))
+          await env.budakitchen.put(
+            dateKey,
+            JSON.stringify(storedMenu),
+            expiration,
+          )
         }
       }
     } catch (e) {
@@ -119,9 +133,7 @@ const getData = async (env) => {
         await env.budakitchen.put(
           dateKey,
           JSON.stringify({ menu: handler.result }),
-          {
-            expirationTtl: 20 * 60 * 60,
-          },
+          expiration,
         )
       }
 
