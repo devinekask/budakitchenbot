@@ -13,4 +13,4 @@ node_compat = true
 # - TRANSLATE_TOKEN
 
 [triggers]
-crons = ["30 6 * * *"]
+crons = ["3 6 * * *"]
