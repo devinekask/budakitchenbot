@@ -1,4 +1,4 @@
-const MODELID = 'eab32df0-de26-4b83-a908-a83f3015e971'
+const MODELID = '26a1a203-3a46-42cb-8cfa-f4de075907d8'
 
 const generateImg = async (key, prompt) => {
   try {
