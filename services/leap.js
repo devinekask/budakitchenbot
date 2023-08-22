@@ -11,8 +11,8 @@ const generateImg = async (key, prompt) => {
         authorization: `Bearer ${key}`,
       },
       body: JSON.stringify({
-        prompt: `${prompt} on a plate on the table of a cosy restaurant  :: food photography, photorealistic, ultra realistic, maximum detail, recipes.com, epicurious, instagram :: 8k, volumetric light, cinematic, octane render  --v 3  --ar 9:16 --uplight --no blur, depth of field, dof, bokeh`,
-        negativePrompt: 'asymmetric, watermarks',
+        prompt: `Food photography style ${prompt}. Appetizing, professional, culinary, high-resolution, commercial, highly detailed`,
+        negativePrompt: 'unappetizing, sloppy, unprofessional, noisy, blurry',
         steps: 50,
         width: 1024,
         height: 288,
