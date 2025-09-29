@@ -19,30 +19,26 @@ router.get('/', async (_, env) => {
 const getOrCreateImage = async (env) => {
   const today = new Date().getDay()
 
-  if (today != 6 && today != 0) {
-    const dateKey = getDateKey()
-    try {
-      const storedMenu = await env.budakitchen.get(dateKey, { type: 'json' })
+  const dateKey = getDateKey()
+  try {
+    const storedMenu = await env.budakitchen.get(dateKey, { type: 'json' })
 
+    if (!storedMenu.image) {
       const promptNL = storedMenu.menu[Math.floor(Math.random() * 2)]
       const translation = await translate(promptNL, env)
-      console.log('trans', translation)
-
-      if (!storedMenu.image) {
-        const image = await generateImage(translation, env)
-        if (image) {
-          storedMenu.image =
-            'https://res.cloudinary.com/simondevine/image/upload/budamenu/menuvandedag.png'
-          await env.budakitchen.put(
-            dateKey,
-            JSON.stringify(storedMenu),
-            expiration,
-          )
-        }
+      const image = await generateImage(translation, env)
+      if (image) {
+        storedMenu.image =
+          'https://res.cloudinary.com/simondevine/image/upload/budamenu/menuvandedag.png'
+        await env.budakitchen.put(
+          dateKey,
+          JSON.stringify(storedMenu),
+          expiration,
+        )
       }
-    } catch (e) {
-      console.log('Error', e)
     }
+  } catch (e) {
+    console.log('Error', e)
   }
 }
 
@@ -73,7 +69,7 @@ router.get('/rss', async (_, env) => {
     feed.addItem({
       title: item,
       image:
-        data.image?.uri ??
+        data.image ??
         'https://budakitchen.be/wp-content/uploads/2019/02/BUDA.jpg',
     })
   })
