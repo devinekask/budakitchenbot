@@ -2,14 +2,14 @@ const generateImage = async (prompt, env) => {
   const {
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDINARY_CLOUD_NAME,
-    CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET,
   } = env
-  if (!CLOUDFLARE_ACCOUNT_ID) {
-    throw new Error('Missing CLOUDFLARE_ACCOUNT_ID environment variable')
-  }
 
-  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+  if (
+    !CLOUDINARY_CLOUD_NAME ||
+    !CLOUDFLARE_ACCOUNT_ID ||
+    !CLOUDINARY_API_SECRET
+  ) {
     throw new Error('Missing Cloudinary environment variables')
   }
   const API_URL = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`
