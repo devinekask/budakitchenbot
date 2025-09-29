@@ -2,8 +2,8 @@ import { Feed } from 'feed'
 import { Router } from 'itty-router'
 import { json } from 'itty-router-extras'
 
-import { generateImg, getImage } from './services/leap.js'
 import { translate } from './services/translation.js'
+import { generateImage } from './services/image.js'
 
 const router = Router()
 
@@ -23,27 +23,16 @@ const getOrCreateImage = async (env) => {
     const dateKey = getDateKey()
     try {
       const storedMenu = await env.budakitchen.get(dateKey, { type: 'json' })
-      if (!storedMenu.image || !storedMenu.image.inference) {
-        console.log('inference aanmaken')
-        const promptNL = storedMenu.menu[Math.floor(Math.random() * 2)]
-        const translation = await translate(env.TRANSLATE_TOKEN, promptNL)
-        console.log('trans', translation)
-        const inference = await generateImg(env.AI_API_TOKEN, translation)
-        console.log('inference', inference)
-        storedMenu.image = { inference }
-        await env.budakitchen.put(
-          dateKey,
-          JSON.stringify(storedMenu),
-          expiration,
-        )
-      } else if (!storedMenu.image.uri) {
-        console.log('image ophalen')
-        const image = await getImage(
-          env.AI_API_TOKEN,
-          storedMenu.image.inference,
-        )
+
+      const promptNL = storedMenu.menu[Math.floor(Math.random() * 2)]
+      const translation = await translate(promptNL, env)
+      console.log('trans', translation)
+
+      if (!storedMenu.image) {
+        const image = await generateImage(translation, env)
         if (image) {
-          storedMenu.image.uri = image
+          storedMenu.image =
+            'https://res.cloudinary.com/simondevine/image/upload/budamenu/menuvandedag.png'
           await env.budakitchen.put(
             dateKey,
             JSON.stringify(storedMenu),
