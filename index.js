@@ -28,8 +28,7 @@ const getOrCreateImage = async (env) => {
       const translation = await translate(promptNL, env)
       const image = await generateImage(translation, env)
       if (image) {
-        storedMenu.image =
-          'https://res.cloudinary.com/simondevine/image/upload/budamenu/menuvandedag.png'
+        storedMenu.image = image
         await env.budakitchen.put(
           dateKey,
           JSON.stringify(storedMenu),

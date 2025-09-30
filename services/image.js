@@ -3,12 +3,14 @@ const generateImage = async (prompt, env) => {
     CLOUDFLARE_ACCOUNT_ID,
     CLOUDINARY_CLOUD_NAME,
     CLOUDINARY_API_SECRET,
+    CLOUDINARY_API_KEY,
   } = env
 
   if (
     !CLOUDINARY_CLOUD_NAME ||
     !CLOUDFLARE_ACCOUNT_ID ||
-    !CLOUDINARY_API_SECRET
+    !CLOUDINARY_API_SECRET ||
+    !CLOUDINARY_API_KEY
   ) {
     throw new Error('Missing Cloudinary environment variables')
   }
@@ -95,7 +97,7 @@ const generateImage = async (prompt, env) => {
   }
 
   const result = await cloudinaryResponse.json()
-  return result.secure_url
+  return result.url
 }
 
 export { generateImage }
