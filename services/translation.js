@@ -4,8 +4,8 @@ const translate = async (prompt, env) => {
   try {
     const response = await env.AI.run('@cf/meta/m2m100-1.2b', {
       text: prompt,
-      source_lang: 'dutch',
-      target_lang: 'english',
+      source_lang: 'nl',
+      target_lang: 'en',
     })
 
     return await response.translated_text

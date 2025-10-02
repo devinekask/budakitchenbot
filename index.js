@@ -24,9 +24,14 @@ const getOrCreateImage = async (env) => {
     const storedMenu = await env.budakitchen.get(dateKey, { type: 'json' })
 
     if (!storedMenu.image) {
-      const promptNL = storedMenu.menu[Math.floor(Math.random() * 2)]
-      const translation = await translate(promptNL, env)
-      const image = await generateImage(translation, env)
+      const translations = await Promise.all(
+        storedMenu.menu.map((item) => translate(item, env)),
+      )
+      storedMenu.enmenu = translations
+      // Pick a random translated item, keeping index in sync
+      const randomIndex = Math.floor(Math.random() * translations.length)
+      const pickedItem = translations[randomIndex]
+      const image = await generateImage(pickedItem, env)
       if (image) {
         storedMenu.image = image
         await env.budakitchen.put(
@@ -64,9 +69,10 @@ router.get('/rss', async (_, env) => {
     link: 'https://budakitchen.be/',
   })
 
-  data.menu.forEach((item) => {
+  data.menu.forEach((item, index) => {
     feed.addItem({
       title: item,
+      description: data.enmenu ? data.enmenu[index] : null,
       image:
         data.image ??
         'https://budakitchen.be/wp-content/uploads/2019/02/BUDA.jpg',
